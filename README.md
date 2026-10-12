@@ -4,8 +4,37 @@ App de escritorio para la Steam Deck que permite **compartir texto y archivos po
 entre la Deck y cualquier móvil o PC con navegador, sin instalar nada en ninguno de los dos.
 También sirve para **instalar ROMs** desde el PC: las coloca en la carpeta de EmuDeck y las añade a Steam.
 
-La ventana usa el mismo tema oscuro que DeckSpace (`setup_style()`). El diseño actual es la propuesta
-«A · Panel con pestañas» (2026-10-12): lienzo de diseño en https://claude.ai/artifact/MMR2cZPPUs8FhtptkLRM8F.
+![Ventana de LanShare en la Steam Deck](docs/ventana.png)
+
+![La web en el móvil: pestañas Texto, Archivos y Juegos retro](docs/web.png)
+
+## Instalación
+Funciona en la Steam Deck (SteamOS, modo escritorio) y en cualquier Linux con escritorio.
+
+**Requisitos**: Python 3 con Tkinter (vienen con SteamOS). Opcionales: `qrencode` para el QR (también viene con
+SteamOS) y [EmuDeck](https://www.emudeck.com/) para instalar ROMs. No hace falta `sudo` ni tocar el sistema.
+
+En la Deck, en modo escritorio, abre **Konsole** y escribe:
+```bash
+git clone https://github.com/drarekx/LanShare.git ~/Apps/LanShare
+~/Apps/LanShare/install.sh --desktop
+```
+Después abre **LanShare** desde el menú de aplicaciones (o el icono del Escritorio).
+
+Sin `git`, descarga el `.tar.gz` de la última versión en
+[Releases](https://github.com/drarekx/LanShare/releases), descomprímelo en `~/Apps/LanShare` y ejecuta `install.sh`.
+
+- **Actualizar**: `git -C ~/Apps/LanShare pull` (y cerrar y volver a abrir la app).
+- **Desinstalar**: `~/Apps/LanShare/install.sh --uninstall` y borrar `~/Apps/LanShare`. Los archivos recibidos
+  siguen en `~/LanShare`.
+- `install.sh` solo crea el acceso directo `~/.local/share/applications/lanshare.desktop` (y su copia en
+  `~/Desktop` con `--desktop`) apuntando a la carpeta donde está el código, y la carpeta `~/LanShare`.
+- El otro dispositivo no necesita instalar nada: solo un navegador en la misma red.
+- Si la Deck tiene cortafuegos activado, hay que permitir el puerto TCP **8765** (en SteamOS no viene activado).
+
+## Diseño
+La ventana usa el mismo tema oscuro que las demás apps de la Deck (`setup_style()`). El diseño actual es la
+propuesta «A · Panel con pestañas» (2026-10-12).
 
 ## Uso
 1. Abrir **LanShare** desde el menú de aplicaciones (Utilidades) o el icono del Escritorio, en modo escritorio.
@@ -78,11 +107,14 @@ Detalles:
 ## Archivos
 | Ruta | Qué es |
 |------|--------|
-| `~/Apps/LanShare/lanshare.py` | La app: servidor web, página y ventana (solo librería estándar de Python) |
-| `~/Apps/LanShare/roms.py` | Instalación de ROMs: sistemas, comando de lanzamiento desde SRM y escritura de `shortcuts.vdf` |
+| `lanshare.py` | La app: servidor web, página y ventana (solo librería estándar de Python) |
+| `roms.py` | Instalación de ROMs: sistemas, comando de lanzamiento desde SRM y escritura de `shortcuts.vdf` |
+| `install.sh` | Crea o quita los accesos directos |
+| `docs/` | Capturas de pantalla |
+| `README.md` | Esta documentación |
+| `LICENSE` | Licencia BSD de 3 cláusulas |
 | `~/Backups/LanShare/` | Copias de `shortcuts.vdf` antes de cada cambio (las 10 últimas) |
-| `~/Apps/LanShare/README.md` | Esta documentación |
-| `~/Apps/LanShareDecky/` | Plugin de Decky que usa el modo `--headless` en modo juego |
+| `~/Apps/LanShareDecky/` | Plugin de Decky que usa el modo `--headless` en modo juego (aún no publicado) |
 | `~/.local/share/applications/lanshare.desktop` | Acceso directo del menú |
 | `~/Desktop/lanshare.desktop` | Copia del acceso directo en el Escritorio |
 | `~/LanShare/` | Carpeta de archivos compartidos y recibidos |
@@ -120,7 +152,7 @@ Detalles:
 
 ## Modo headless (plugin de Decky)
 `lanshare.py --headless` arranca el mismo servidor **sin ventana**, para el plugin de Decky
-[LanShareDecky](../LanShareDecky/README.md) en modo juego. Se comunica por líneas JSON:
+LanShareDecky (`~/Apps/LanShareDecky`, aún no publicado) en modo juego. Se comunica por líneas JSON:
 - **stdout**: `{"type": "ready", "pin", "port", "urls": [{"url", "label"}], "share_dir"}` al arrancar y después
   `text` (`item`), `file` (`name`, `client`), `log` (`message`) y `shortcut` (`entry`). Si el puerto está ocupado, envía `error`.
 - **stdin**: `{"cmd": "shortcut_result", "appname", "ok", "error"}` y `{"cmd": "quit"}`. También se cierra al cerrarse
